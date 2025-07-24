@@ -1,19 +1,35 @@
 require('dotenv').config();
-const eventbrite = require('eventbrite');
-const sdk = eventbrite({ token: process.env.EVENTBRITE_TOKEN });
 
 async function getEvents() {
   try {
-    const response = await sdk.request('/users/me/events');
-    const events = response.events.map(evt => ({
-      name: evt.name.text,
-      start: evt.start.local,
-      url: evt.url
-    }));
-    console.log('Upcoming Events:\n', events);
+    const now = new Date();
+    now.setDate(now.getDate() + 1); // Start from tomorrow
+    const isoDate = now.toISOString().split('.')[0] + 'Z';
+
+    const response = await fetch(`https://www.eventbriteapi.com/v3/events/search/?location.address=Atlanta&start_date.range_start=${isoDate}`, {
+      headers: {
+        Authorization: `Bearer ${process.env.EVENTBRITE_TOKEN}`
+      }
+    });
+
+    const data = await response.json();
+    console.log('Raw response:', data);
+
+    const events = Array.isArray(data.events)
+      ? data.events.map(evt => ({
+          name: evt.name?.text,
+          start: evt.start?.local,
+          url: evt.url
+        }))
+      : [];
+
+    console.log('Upcoming Events in Atlanta:\n', events);
   } catch (error) {
     console.error('Error fetching events:', error.message);
   }
 }
 
 getEvents();
+
+
+
