@@ -2,11 +2,9 @@ require('dotenv').config();
 
 async function getEvents() {
   try {
-    const now = new Date();
-    now.setDate(now.getDate() + 1); // Start from tomorrow
-    const isoDate = now.toISOString().split('.')[0] + 'Z';
+    const now = new Date().toISOString().split('.')[0] + 'Z';
 
-    const response = await fetch(`https://www.eventbriteapi.com/v3/events/search/?location.address=Atlanta&start_date.range_start=${isoDate}`, {
+    const response = await fetch(`https://www.eventbriteapi.com/v3/events/search?location.address=Atlanta&start_date.range_start=${now}`, {
       headers: {
         Authorization: `Bearer ${process.env.EVENTBRITE_TOKEN}`
       }
@@ -30,6 +28,8 @@ async function getEvents() {
 }
 
 getEvents();
+
+
 
 
 
